@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ithumb</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+
+	body {
+		font-family: Sans-Serif;
+	}
+
+	img.picture {
+		max-width: 100%;
+		max-height: 100%;
+		display: block;
+		margin: auto;
+	}
+
+	a {
+		color: #000099;
+		text-decoration: none;
+	}
+
+	a.prev {
+		position: fixed;
+		left: 0em;
+		top: 0em;
+		width: 30%;
+		height: 100%;
+		display: block;
+	}
+
+	a.next {
+		position: fixed;
+		right: 0em;
+		top: 0em;
+		width: 30%;
+		height: 100%;
+		display: block;
+	}
+
+	a.parent {
+		position: fixed;
+		top: 0em;
+		left: 30%;
+		width: 40%;
+		height: 30%;
+		display: block;
+	}
+
+	a.shuffle {
+		position: fixed;
+		bottom: 0em;
+		left: 30%;
+		width: 40%;
+		height: 30%;
+		display: block;
+	}
+
+
+	div.add {
+		margin-left: 2em;
+	}
+
+	li {
+		margin-bottom: 0.2em;
+	}
+
+	a.add,
+	a.done,
+	a.edit {
+		text-decoration: none;
+	}
+
+	</style>
+</head>
+<body>
+<%= content %>
+</body>
+</html>

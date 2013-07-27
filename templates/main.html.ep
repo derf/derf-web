@@ -1,0 +1,11 @@
+<div>
+<a href="<%= $file %>">
+<img src="<%= $file %>" class="picture">
+</a>
+<div>
+<a class="prev" href="<%= $prev %>" />
+<a class="next" href="<%= $next %>" />
+<a class="parent" href="." />
+<a class="shuffle" href="<%= $random %>" />
+</div>
+</div>
