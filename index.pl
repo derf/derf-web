@@ -13,9 +13,9 @@ use File::Slurp qw(read_dir slurp);
 our $VERSION = '0.00';
 my $prefix = '/home/derf/lib';
 
-get '/*path' => sub {
+sub serve_ithumb {
 	my $self = shift;
-	my $path = $self->stash('path');
+	my $path = $self->stash('path') || q{.};
 
 	my ($dir, $file) = ( $path =~ m{ ^ (.+) / ([^/]+) \. html $ }ox );
 
@@ -48,7 +48,10 @@ get '/*path' => sub {
 		$self->render_static($path);
 	}
 
-};
+}
+
+get '/' => \&serve_ithumb;
+get '/*path' => \&serve_ithumb;
 
 app->config(
 	hypnotoad => {
