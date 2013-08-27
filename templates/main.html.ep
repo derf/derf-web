@@ -1,11 +1,13 @@
 <div>
 <a href="<%= $file %>">
-<img src="<%= $file %>" class="picture">
+<img src="<%= $file %>" class="picture" />
+<img src="<%= $prev %>" class="preload" />
+<img src="<%= $next %>" class="preload" />
 </a>
 <div>
-<a class="prev" href="<%= $prev %>" />
-<a class="next" href="<%= $next %>" />
+<a class="prev" href="<%= $prevlink %>" />
+<a class="next" href="<%= $nextlink %>" />
 <a class="parent" href="." />
-<a class="shuffle" href="<%= $random %>" />
+<a class="shuffle" href="<%= $randomlink %>" />
 </div>
 </div>

@@ -16,6 +16,12 @@
 		margin: auto;
 	}
 
+	img.preload {
+		width: 1px;
+		height: 1px;
+		visibility: hidden;
+	}
+
 	a {
 		color: #000099;
 		text-decoration: none;

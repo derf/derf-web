@@ -29,10 +29,13 @@ get '/*path' => sub {
 		my $next_idx = ($idx == $#all_files ? $idx : $idx + 1);
 
 		$self->render('main',
-			prev => $all_files[$prev_idx] . '.html',
-			next => $all_files[$next_idx] . '.html',
-			random => $all_files[int(rand($#all_files))] . '.html',
-			parent => $dir,
+			prev => $all_files[$prev_idx],
+			next => $all_files[$next_idx],
+			randomlink => $all_files[int(rand($#all_files))],
+			prevlink => $all_files[$prev_idx] . '.html',
+			nextlink => $all_files[$next_idx] . '.html',
+			randomlink => $all_files[int(rand($#all_files))] . '.html',
+			parentlink => $dir,
 			file => $file,
 		);
 	}
@@ -52,7 +55,7 @@ get '/*path' => sub {
 
 app->config(
 	hypnotoad => {
-		listen          => ['http://*:8094'],
+		listen          => ['http://127.0.0.1:8099'],
 		pid_file        => '/tmp/ithumb.pid',
 		workers         => 1,
 	},
