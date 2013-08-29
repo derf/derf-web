@@ -11,7 +11,8 @@ use Mojolicious::Static;
 use File::Slurp qw(read_dir slurp);
 
 our $VERSION = '0.00';
-my $prefix = '/home/derf/lib';
+my $prefix = $ENV{DWEB_PREFIX} // '/home/derf/lib';
+my $listen = $ENV{DWEB_LISTEN} // 'http://127.0.0.1:8099';
 
 sub serve_ithumb {
 	my $self = shift;
@@ -58,8 +59,8 @@ get '/*path' => \&serve_ithumb;
 
 app->config(
 	hypnotoad => {
-		listen          => ['http://127.0.0.1:8099'],
-		pid_file        => '/tmp/ithumb.pid',
+		listen          => [$listen],
+		pid_file        => '/tmp/derf_web.pid',
 		workers         => 1,
 	},
 );
