@@ -1,0 +1,14 @@
+<p>
+<table>
+<tr>
+<th> Location </th><th> Amount </th><th> Description </th>
+</tr>
+% for my $item (@{ $db }) {
+<tr>
+<td title="<%= $item->{locationv} %>"> <%= $item->{location} %> </td>
+<td> <%= $item->{amount} %> </td>
+<td> <%= $item->{description} %> </td>
+</tr>
+% }
+</table>
+</p>
