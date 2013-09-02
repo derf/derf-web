@@ -12,59 +12,57 @@ use Mojolicious::Static;
 use File::Slurp qw(read_dir slurp);
 
 our $VERSION = '0.00';
-my $prefix = $ENV{EFS_PREFIX} // '/home/derf/lib';
-my $hwdb   = $ENV{HWDB_PATH} // '/home/derf/packages/hardware/var/db';
+my $prefix = $ENV{EFS_PREFIX}  // '/home/derf/lib';
+my $hwdb   = $ENV{HWDB_PATH}   // '/home/derf/packages/hardware/var/db';
 my $listen = $ENV{DWEB_LISTEN} // 'http://127.0.0.1:8099';
 
 sub efs_list_file {
-	my ($path, $file) = @_;
+	my ( $path, $file ) = @_;
 	my $realpath = "${prefix}/${path}/${file}";
 	my $url;
 
-	if (mimetype($realpath) =~ m{ ^ image }ox) {
+	if ( mimetype($realpath) =~ m{ ^ image }ox ) {
 		$url = "/efs/${path}/${file}.html";
 	}
 	else {
 		$url = "/efs/${path}/${file}";
 	}
 
-
-	return [$file, $url];
+	return [ $file, $url ];
 }
 
 sub serve_efs {
 	my $self = shift;
 	my $path = $self->stash('path') || q{.};
 
-	my ($dir, $file) = ( $path =~ m{ ^ (.+) / ([^/]+) \. html $ }ox );
+	my ( $dir, $file ) = ( $path =~ m{ ^ (.+) / ([^/]+) \. html $ }ox );
 
-	if ($path =~ m{ \. html $ }ox) {
+	if ( $path =~ m{ \. html $ }ox ) {
 
 		my @all_files = read_dir("${prefix}/${dir}");
 		@all_files = grep { -f "${prefix}/${dir}/$_" } sort @all_files;
 		my $idx = firstidx { $_ eq $file } @all_files;
 
-		my $prev_idx = ($idx == 0 ? 0 : $idx - 1);
-		my $next_idx = ($idx == $#all_files ? $idx : $idx + 1);
+		my $prev_idx = ( $idx == 0           ? 0    : $idx - 1 );
+		my $next_idx = ( $idx == $#all_files ? $idx : $idx + 1 );
 
-		$self->render('efs-main',
-			prev => $all_files[$prev_idx],
-			next => $all_files[$next_idx],
-			randomlink => $all_files[int(rand($#all_files))],
-			prevlink => $all_files[$prev_idx] . '.html',
-			nextlink => $all_files[$next_idx] . '.html',
-			randomlink => $all_files[int(rand($#all_files))] . '.html',
+		$self->render(
+			'efs-main',
+			prev       => $all_files[$prev_idx],
+			next       => $all_files[$next_idx],
+			randomlink => $all_files[ int( rand($#all_files) ) ],
+			prevlink   => $all_files[$prev_idx] . '.html',
+			nextlink   => $all_files[$next_idx] . '.html',
+			randomlink => $all_files[ int( rand($#all_files) ) ] . '.html',
 			parentlink => $dir,
-			file => $file,
+			file       => $file,
 		);
 	}
-	elsif (-d "${prefix}/${path}") {
+	elsif ( -d "${prefix}/${path}" ) {
 		$path =~ s{ / $ }{}ox;
-		my @all_files = read_dir("${prefix}/${path}", keep_dot_dot => 1);
-		@all_files = map { efs_list_file($path, $_) } sort @all_files;
-		$self->render('efs-list',
-			files => \@all_files,
-		);
+		my @all_files = read_dir( "${prefix}/${path}", keep_dot_dot => 1 );
+		@all_files = map { efs_list_file( $path, $_ ) } sort @all_files;
+		$self->render( 'efs-list', files => \@all_files, );
 	}
 	else {
 		$self->render_static($path);
@@ -72,18 +70,18 @@ sub serve_efs {
 
 }
 
-get '/efs/' => \&serve_efs;
+get '/efs/'      => \&serve_efs;
 get '/efs/*path' => \&serve_efs;
 
 app->config(
 	hypnotoad => {
-		listen          => [$listen],
-		pid_file        => '/tmp/derf_web.pid',
-		workers         => 1,
+		listen   => [$listen],
+		pid_file => '/tmp/derf_web.pid',
+		workers  => 1,
 	},
 );
 
 app->defaults( layout => 'default' );
-push(@{app->static->paths}, $prefix);
+push( @{ app->static->paths }, $prefix );
 
 app->start();
