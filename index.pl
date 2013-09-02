@@ -11,10 +11,11 @@ use Mojolicious::Static;
 use File::Slurp qw(read_dir slurp);
 
 our $VERSION = '0.00';
-my $prefix = $ENV{DWEB_PREFIX} // '/home/derf/lib';
+my $prefix = $ENV{EFS_PREFIX} // '/home/derf/lib';
+my $hwdb   = $ENV{HWDB_PATH} // '/home/derf/packages/hardware/var/db';
 my $listen = $ENV{DWEB_LISTEN} // 'http://127.0.0.1:8099';
 
-sub serve_ithumb {
+sub serve_efs {
 	my $self = shift;
 	my $path = $self->stash('path') || q{.};
 
@@ -29,7 +30,7 @@ sub serve_ithumb {
 		my $prev_idx = ($idx == 0 ? 0 : $idx - 1);
 		my $next_idx = ($idx == $#all_files ? $idx : $idx + 1);
 
-		$self->render('main',
+		$self->render('efs-main',
 			prev => $all_files[$prev_idx],
 			next => $all_files[$next_idx],
 			randomlink => $all_files[int(rand($#all_files))],
@@ -43,8 +44,8 @@ sub serve_ithumb {
 	elsif (-d "${prefix}/${path}") {
 		$path =~ s{ / $ }{}ox;
 		my @all_files = read_dir("${prefix}/${path}", keep_dot_dot => 1);
-		@all_files = map { [$_, -d "${prefix}/${path}/$_" ? "/${path}/$_" : "/${path}/$_.html"] } sort @all_files;
-		$self->render('list',
+		@all_files = map { [$_, -d "${prefix}/${path}/$_" ? "/efs/${path}/$_" : "/efs/${path}/$_.html"] } sort @all_files;
+		$self->render('efs-list',
 			files => \@all_files,
 		);
 	}
@@ -54,8 +55,8 @@ sub serve_ithumb {
 
 }
 
-get '/' => \&serve_ithumb;
-get '/*path' => \&serve_ithumb;
+get '/efs/' => \&serve_efs;
+get '/efs/*path' => \&serve_efs;
 
 app->config(
 	hypnotoad => {
