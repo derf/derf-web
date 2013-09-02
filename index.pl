@@ -5,6 +5,7 @@ use warnings;
 use 5.014;
 use utf8;
 
+use File::MimeInfo qw(mimetype);
 use List::MoreUtils qw(firstidx);
 use Mojolicious::Lite;
 use Mojolicious::Static;
@@ -14,6 +15,22 @@ our $VERSION = '0.00';
 my $prefix = $ENV{EFS_PREFIX} // '/home/derf/lib';
 my $hwdb   = $ENV{HWDB_PATH} // '/home/derf/packages/hardware/var/db';
 my $listen = $ENV{DWEB_LISTEN} // 'http://127.0.0.1:8099';
+
+sub efs_list_file {
+	my ($path, $file) = @_;
+	my $realpath = "${prefix}/${path}/${file}";
+	my $url;
+
+	if (mimetype($realpath) =~ m{ ^ image }ox) {
+		$url = "/efs/${path}/${file}.html";
+	}
+	else {
+		$url = "/efs/${path}/${file}";
+	}
+
+
+	return [$file, $url];
+}
 
 sub serve_efs {
 	my $self = shift;
@@ -44,7 +61,7 @@ sub serve_efs {
 	elsif (-d "${prefix}/${path}") {
 		$path =~ s{ / $ }{}ox;
 		my @all_files = read_dir("${prefix}/${path}", keep_dot_dot => 1);
-		@all_files = map { [$_, -d "${prefix}/${path}/$_" ? "/efs/${path}/$_" : "/efs/${path}/$_.html"] } sort @all_files;
+		@all_files = map { efs_list_file($path, $_) } sort @all_files;
 		$self->render('efs-list',
 			files => \@all_files,
 		);
