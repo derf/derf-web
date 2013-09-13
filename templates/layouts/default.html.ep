@@ -78,6 +78,18 @@
 		text-decoration: none;
 	}
 
+	div.image-container {
+		text-align: center;
+		font-size: 80%;
+		float: left;
+		width: 250px;
+		height: 270px;
+	}
+
+	div.image-container a {
+		text-decoration: none;
+	}
+
 	</style>
 </head>
 <body>
