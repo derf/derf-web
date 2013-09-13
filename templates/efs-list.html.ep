@@ -1,7 +1,12 @@
 <div>
 <ul>
 % for my $file (@{$files}) {
-<li><a href="<%= $file->[1] %>"> <%= $file->[0] %> </a></li>
+<li>
+<a href="<%= $file->[1] %>">
+% if ( $file->[0] =~ m{ (png | jpg | jpeg | gif) $ }iox ) {
+<img src="<%= $file->[2] %>?thumb=1" />
+% }
+<%= $file->[0] %> </a></li>
 % }
 </ul>
 </div>

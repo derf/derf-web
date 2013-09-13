@@ -10,12 +10,15 @@ use File::MimeInfo qw(mimetype);
 use List::MoreUtils qw(firstidx);
 use Mojolicious::Lite;
 use Mojolicious::Static;
+use File::Path qw(make_path);
 use File::Slurp qw(read_dir slurp);
+use Image::Imlib2;
 
 our $VERSION = '0.00';
-my $prefix = $ENV{EFS_PREFIX}  // '/home/derf/lib';
-my $hwdb   = $ENV{HWDB_PATH}   // '/home/derf/packages/hardware/var/db';
-my $listen = $ENV{DWEB_LISTEN} // 'http://127.0.0.1:8099';
+my $prefix   = $ENV{EFS_PREFIX}   // '/home/derf/lib';
+my $thumbdir = $ENV{EFS_THUMBDIR} // '/home/derf/var/local/efs-thumbs';
+my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
+my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 
 my $re_hwdb_desc = qr{
 	^
@@ -50,7 +53,7 @@ sub efs_list_file {
 		$url = "/efs/${path}/${file}";
 	}
 
-	return [ $file, $url ];
+	return [ $file, $url, "/efs/${path}/${file}" ];
 }
 
 sub load_hwdb {
@@ -118,6 +121,29 @@ sub serve_efs {
 		$self->render( 'efs-list', files => \@all_files, );
 	}
 	else {
+		if ( $self->param('thumb') ) {
+			say "${prefix}/${path}";
+			my $im        = Image::Imlib2->load("${prefix}/${path}");
+			my $thumb     = $im;
+			my $thumb_dim = 250;
+			my ( $dx, $dy ) = ( $im->width, $im->height );
+
+			my ( $dpath, $file ) = ( $path =~ m{ (.+) / ([^/])+ $ }ox );
+
+			make_path("${thumbdir}/thumbs/${dpath}");
+
+			if ( $dx > $thumb_dim or $dy > $thumb_dim ) {
+				if ( $dx > $dy ) {
+					$thumb = $im->create_scaled_image( $thumb_dim, 0 );
+				}
+				else {
+					$thumb = $im->create_scaled_image( 0, $thumb_dim );
+				}
+			}
+			$thumb->set_quality(75);
+			$thumb->save("${thumbdir}/thumbs/${path}");
+			$path = "thumbs/${path}";
+		}
 		$self->render_static($path);
 	}
 
@@ -145,5 +171,6 @@ app->config(
 
 app->defaults( layout => 'default' );
 push( @{ app->static->paths }, $prefix );
+push( @{ app->static->paths }, $thumbdir );
 
 app->start;
