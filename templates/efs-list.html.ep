@@ -3,7 +3,7 @@
 <div class="image-container">
 <a href="<%= $file->[1] %>">
 % if ( $file->[0] =~ m{ (png | jpg | jpeg | gif) $ }iox ) {
-<img src="<%= $file->[2] %>?thumb=1" /><br/>
+<img class="lazy" data-original="<%= $file->[2] %>?thumb=1" src="/placeholder.png" /><br/>
 % }
 % else {
 <img src="/placeholder.png" /><br/>
@@ -12,3 +12,6 @@
 </div>
 % }
 </div>
+<script>
+$("img.lazy").lazyload();
+</script>
