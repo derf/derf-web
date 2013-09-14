@@ -73,6 +73,23 @@
 		margin-left: 2em;
 	}
 
+	div.pgctl {
+		font-size: 300%;
+	}
+
+	div.pgctl li {
+		margin-top: 1em;
+		margin-bottom: 1em;
+	}
+
+	div.pgctl a.on {
+		color: green;
+	}
+
+	div.pgctl a.off {
+		color: darkred;
+	}
+
 	li {
 		margin-bottom: 0.2em;
 	}

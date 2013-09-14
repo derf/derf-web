@@ -20,6 +20,10 @@ my $thumbdir = $ENV{EFS_THUMBDIR} // '/home/derf/var/local/efs-thumbs';
 my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
 my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 
+my @pgctl_devices = qw(
+  fnordlicht psu-lastlight psu-saviour wifi-ap
+);
+
 my $re_hwdb_desc = qr{
 	^
 	(?<location> \S+ )
@@ -40,6 +44,28 @@ my $re_hwdb_item = qr{
 		$
 	)?
 }x;
+
+sub pgctl_get_status {
+	my ($device) = @_;
+
+	if ( $device ~~ \@pgctl_devices ) {
+		my $status = qx{$device};
+		if ( $status eq 'on' ) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+sub pgctl_set_status {
+	my ( $device, $status ) = @_;
+
+	if ( $device ~~ \@pgctl_devices ) {
+		my $arg = $status ? 'on' : 'off';
+		system( $device, $arg );
+	}
+	return;
+}
 
 sub efs_list_file {
 	my ( $path, $file ) = @_;
@@ -162,9 +188,34 @@ sub serve_hwdb {
 
 }
 
-get '/efs/'      => \&serve_efs;
-get '/efs/*path' => \&serve_efs;
-get '/hwdb/'     => \&serve_hwdb;
+sub serve_pgctl {
+	my ($self) = @_;
+
+	my %devices;
+
+	for my $device (@pgctl_devices) {
+		$devices{$device} = pgctl_get_status($device) ? 'on' : 'off';
+	}
+
+	$self->render( 'pgctl', devices => \%devices, );
+
+	return;
+}
+
+sub serve_pgctl_toggle {
+	my ($self) = @_;
+	my $device = $self->stash('device');
+
+	pgctl_set_status( $device, !pgctl_get_status($device) );
+
+	$self->redirect_to('/pgctl');
+}
+
+get '/efs/'                 => \&serve_efs;
+get '/efs/*path'            => \&serve_efs;
+get '/hwdb/'                => \&serve_hwdb;
+get '/pgctl'                => \&serve_pgctl;
+get '/pgctl/toggle/:device' => \&serve_pgctl_toggle;
 
 app->config(
 	hypnotoad => {
