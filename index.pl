@@ -122,26 +122,27 @@ sub serve_efs {
 	}
 	else {
 		if ( $self->param('thumb') ) {
-			say "${prefix}/${path}";
-			my $im        = Image::Imlib2->load("${prefix}/${path}");
-			my $thumb     = $im;
-			my $thumb_dim = 250;
-			my ( $dx, $dy ) = ( $im->width, $im->height );
+			if ( not -e "${thumbdir}/thumbs/${path}" ) {
+				my $im        = Image::Imlib2->load("${prefix}/${path}");
+				my $thumb     = $im;
+				my $thumb_dim = 250;
+				my ( $dx, $dy ) = ( $im->width, $im->height );
 
-			my ( $dpath, $file ) = ( $path =~ m{ (.+) / ([^/])+ $ }ox );
+				my ( $dpath, $file ) = ( $path =~ m{ (.+) / ([^/])+ $ }ox );
 
-			make_path("${thumbdir}/thumbs/${dpath}");
+				make_path("${thumbdir}/thumbs/${dpath}");
 
-			if ( $dx > $thumb_dim or $dy > $thumb_dim ) {
-				if ( $dx > $dy ) {
-					$thumb = $im->create_scaled_image( $thumb_dim, 0 );
+				if ( $dx > $thumb_dim or $dy > $thumb_dim ) {
+					if ( $dx > $dy ) {
+						$thumb = $im->create_scaled_image( $thumb_dim, 0 );
+					}
+					else {
+						$thumb = $im->create_scaled_image( 0, $thumb_dim );
+					}
 				}
-				else {
-					$thumb = $im->create_scaled_image( 0, $thumb_dim );
-				}
+				$thumb->set_quality(75);
+				$thumb->save("${thumbdir}/thumbs/${path}");
 			}
-			$thumb->set_quality(75);
-			$thumb->save("${thumbdir}/thumbs/${path}");
 			$path = "thumbs/${path}";
 		}
 		$self->render_static($path);
