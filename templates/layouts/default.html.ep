@@ -83,11 +83,13 @@
 	}
 
 	div.pgctl a.on {
-		color: green;
+		background-color: darkgreen;
+		color: white;
 	}
 
 	div.pgctl a.off {
-		color: darkred;
+		background-color: darkred;
+		color: white;
 	}
 
 	li {

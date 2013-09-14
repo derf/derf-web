@@ -15,6 +15,7 @@ use File::Slurp qw(read_dir slurp);
 use Image::Imlib2;
 
 our $VERSION = '0.00';
+my $baseurl  = $ENV{BASEURL}      // 'https://fs.finalrewind.org';
 my $prefix   = $ENV{EFS_PREFIX}   // '/home/derf/lib';
 my $thumbdir = $ENV{EFS_THUMBDIR} // '/home/derf/var/local/efs-thumbs';
 my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
@@ -50,6 +51,7 @@ sub pgctl_get_status {
 
 	if ( $device ~~ \@pgctl_devices ) {
 		my $status = qx{$device};
+		chomp $status;
 		if ( $status eq 'on' ) {
 			return 1;
 		}
@@ -208,7 +210,8 @@ sub serve_pgctl_toggle {
 
 	pgctl_set_status( $device, !pgctl_get_status($device) );
 
-	$self->redirect_to('/pgctl');
+	$self->redirect_to("${baseurl}/pgctl");
+	return;
 }
 
 get '/efs/'                 => \&serve_efs;
