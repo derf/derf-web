@@ -122,6 +122,10 @@ sub serve_efs {
 	}
 	else {
 		if ( $self->param('thumb') ) {
+
+			my $thumb_path = $path;
+			$thumb_path =~ s{ \. gif $ }{.png}ox;
+
 			if ( not -e "${thumbdir}/thumbs/${path}" ) {
 				my $im        = Image::Imlib2->load("${prefix}/${path}");
 				my $thumb     = $im;
@@ -141,9 +145,9 @@ sub serve_efs {
 					}
 				}
 				$thumb->set_quality(75);
-				$thumb->save("${thumbdir}/thumbs/${path}");
+				$thumb->save("${thumbdir}/thumbs/${thumb_path}");
 			}
-			$path = "thumbs/${path}";
+			$path = "thumbs/${thumb_path}";
 		}
 		$self->render_static($path);
 	}
