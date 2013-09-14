@@ -22,6 +22,11 @@
 		visibility: hidden;
 	}
 
+	img.lazy {
+		max-width: 250px;
+		max-height: 250px;
+	}
+
 	a {
 		color: #000099;
 		text-decoration: none;
