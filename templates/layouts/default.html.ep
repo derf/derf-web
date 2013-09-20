@@ -104,14 +104,18 @@
 
 	div.image-container {
 		text-align: center;
-		font-size: 80%;
 		float: left;
 		width: 250px;
-		height: 270px;
+		height: 300px;
+		max-width: 250px;
+		max-height: 300px;
+		overflow: hidden;
 	}
 
 	div.image-container a {
 		text-decoration: none;
+		max-width: 250px;
+		font-size: 160%;
 	}
 
 	</style>

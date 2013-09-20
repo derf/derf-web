@@ -25,6 +25,10 @@ my @pgctl_devices = qw(
   fnordlicht psu-lastlight psu-saviour wifi-ap
 );
 
+my @hwdb_export = qw(
+  RK SE SL SR S1 S5
+);
+
 my $re_hwdb_desc = qr{
 	^
 	(?<location> \S+ )
@@ -224,7 +228,7 @@ app->config(
 	hypnotoad => {
 		listen   => [$listen],
 		pid_file => '/tmp/derf_web.pid',
-		workers  => 1,
+		workers  => 2,
 	},
 );
 
