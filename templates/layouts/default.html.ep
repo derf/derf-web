@@ -115,7 +115,7 @@
 	div.image-container a {
 		text-decoration: none;
 		max-width: 250px;
-		font-size: 160%;
+		font-size: 140%;
 	}
 
 	</style>
