@@ -14,6 +14,8 @@ use File::Path qw(make_path);
 use File::Slurp qw(read_dir slurp);
 use Image::Imlib2;
 
+no if $] >= 5.018, warnings => "experimental::smartmatch";
+
 our $VERSION = '0.00';
 my $baseurl  = $ENV{BASEURL}      // 'https://fs.finalrewind.org';
 my $prefix   = $ENV{EFS_PREFIX}   // '/home/derf/lib';
