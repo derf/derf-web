@@ -80,6 +80,10 @@ sub efs_list_file {
 	my $realpath = "${prefix}/${path}/${file}";
 	my $url;
 
+	if (-l $realpath) {
+		$realpath = "${prefix}/${path}/" . readlink($realpath);
+	}
+
 	if ( mimetype($realpath) =~ m{ ^ image }ox ) {
 		$url = "/efs/${path}/${file}.html";
 	}
