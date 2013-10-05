@@ -24,7 +24,7 @@ my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
 my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 
 my @pgctl_devices = qw(
-  fnordlicht psu-lastlight psu-saviour wifi-ap
+  fnordlicht lfan psu-lastlight psu-saviour tischlicht wifi-ap
 );
 
 my @hwdb_export = qw(
