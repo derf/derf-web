@@ -1,4 +1,5 @@
 <div>
+<a class="backlink" href=".."> ← </a>
 % for my $file (@{$files}) {
 <div class="image-container">
 <a href="<%= $file->[1] %>">

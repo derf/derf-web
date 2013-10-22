@@ -87,6 +87,9 @@ sub efs_list_file {
 	if ( mimetype($realpath) =~ m{ ^ image }ox ) {
 		$url = "/efs/${path}/${file}.html";
 	}
+	elsif ( -d $realpath ) {
+		$url = "/efs/${path}/${file}/";
+	}
 	else {
 		$url = "/efs/${path}/${file}";
 	}

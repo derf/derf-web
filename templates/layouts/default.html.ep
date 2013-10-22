@@ -68,6 +68,17 @@
 		display: block;
 	}
 
+	a.backlink {
+		position: fixed;
+		top: 0em;
+		left: 0em;
+		width: 1em;
+		height: 1em;
+		font-size: 400%;
+		border: 1px solid #000099;
+		display: block;
+	}
+
 
 	div.add {
 		margin-left: 2em;
