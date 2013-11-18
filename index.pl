@@ -10,6 +10,7 @@ use File::MimeInfo qw(mimetype);
 use List::MoreUtils qw(firstidx);
 use Mojolicious::Lite;
 use Mojolicious::Static;
+use Mojolicious::Types;
 use File::Path qw(make_path);
 use File::Slurp qw(read_dir slurp);
 use Image::Imlib2;
@@ -22,6 +23,8 @@ my $prefix   = $ENV{EFS_PREFIX}   // '/home/derf/lib';
 my $thumbdir = $ENV{EFS_THUMBDIR} // '/home/derf/var/local/efs-thumbs';
 my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
 my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
+
+my $type = Mojolicious::Types->new;
 
 my @pgctl_devices = qw(
   fnordlicht lfan psu-12v psu-lastlight psu-saviour tbacklight tischlicht
@@ -188,6 +191,11 @@ sub serve_efs {
 			}
 			$path = "thumbs/${thumb_path}";
 		}
+		my $fn = (split(qr{/}, $path))[-1];
+		my $ft = (split(qr{[.]}, $fn))[-1];
+		my $ct = $type->type($ft);
+		$self->res->headers->content_disposition("inline; filename=${fn}");
+		$self->res->headers->content_type("$ct; name=${fn}");
 		$self->render_static($path);
 	}
 
