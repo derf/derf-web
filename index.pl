@@ -58,9 +58,7 @@ sub pgctl_get_status {
 	if ( $device ~~ \@pgctl_devices ) {
 		my $status = qx{$device};
 		chomp $status;
-		if ( $status eq 'on' ) {
-			return 1;
-		}
+		return $status ? 1 : 0;
 	}
 	return 0;
 }
