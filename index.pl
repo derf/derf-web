@@ -77,25 +77,41 @@ sub pgctl_set_status {
 }
 
 sub efs_list_file {
-	my ( $path, $file ) = @_;
+	my ( $path, $file, $params ) = @_;
 	my $realpath = "${prefix}/${path}/${file}";
 	my $url;
 
-	if (-l $realpath) {
+	if ( -l $realpath ) {
 		$realpath = "${prefix}/${path}/" . readlink($realpath);
 	}
 
 	if ( mimetype($realpath) =~ m{ ^ image }ox ) {
-		$url = "/efs/${path}/${file}.html";
+		$url = "/efs/${path}/${file}.html?${params}";
 	}
 	elsif ( -d $realpath ) {
-		$url = "/efs/${path}/${file}/";
+		$url = "/efs/${path}/${file}/?${params}";
 	}
 	else {
 		$url = "/efs/${path}/${file}";
 	}
 
 	return [ $file, $url, "/efs/${path}/${file}" ];
+}
+
+sub sort_filenames {
+	my ( $mode, $prefix, @files ) = @_;
+	my @ret;
+
+	if ( $mode eq 'mtime' ) {
+		@ret = map { $_->[0] }
+		  sort { $a->[1] <=> $b->[1] }
+		  map { [ $_, +( stat "${prefix}/$_" )[9] ] } @files;
+	}
+	else {
+		@ret = sort @files;
+	}
+
+	return @ret;
 }
 
 sub load_hwdb {
@@ -132,13 +148,19 @@ sub load_hwdb {
 sub serve_efs {
 	my $self = shift;
 	my $path = $self->stash('path') || q{.};
+	my $sort = $self->param('sort') || 'name';
+
+	my $param_s = $self->req->params->to_string;
 
 	my ( $dir, $file ) = ( $path =~ m{ ^ (.+) / ([^/]+) \. html $ }ox );
 
 	if ( $path =~ m{ \. html $ }ox ) {
 
 		my @all_files = read_dir("${prefix}/${dir}");
-		@all_files = grep { -f "${prefix}/${dir}/$_" } sort @all_files;
+		@all_files = grep { -f "${prefix}/${dir}/$_" } @all_files;
+
+		@all_files = sort_filenames( $sort, "${prefix}/${dir}", @all_files );
+
 		my $idx = firstidx { $_ eq $file } @all_files;
 
 		my $prev_idx = ( $idx == 0           ? 0    : $idx - 1 );
@@ -149,9 +171,10 @@ sub serve_efs {
 			prev       => $all_files[$prev_idx],
 			next       => $all_files[$next_idx],
 			randomlink => $all_files[ int( rand($#all_files) ) ],
-			prevlink   => $all_files[$prev_idx] . '.html',
-			nextlink   => $all_files[$next_idx] . '.html',
-			randomlink => $all_files[ int( rand($#all_files) ) ] . '.html',
+			prevlink   => $all_files[$prev_idx] . ".html?${param_s}",
+			nextlink   => $all_files[$next_idx] . ".html?${param_s}",
+			randomlink => $all_files[ int( rand($#all_files) ) ]
+			  . ".html?${param_s}",
 			parentlink => $dir,
 			file       => $file,
 		);
@@ -159,7 +182,8 @@ sub serve_efs {
 	elsif ( -d "${prefix}/${path}" ) {
 		$path =~ s{ / $ }{}ox;
 		my @all_files = read_dir( "${prefix}/${path}", keep_dot_dot => 1 );
-		@all_files = map { efs_list_file( $path, $_ ) } sort @all_files;
+		@all_files = sort_filenames( $sort, "${prefix}/${path}", @all_files );
+		@all_files = map { efs_list_file( $path, $_, $param_s ) } @all_files;
 		$self->render( 'efs-list', files => \@all_files, );
 	}
 	else {
@@ -191,8 +215,8 @@ sub serve_efs {
 			}
 			$path = "thumbs/${thumb_path}";
 		}
-		my $fn = (split(qr{/}, $path))[-1];
-		my $ft = (split(qr{[.]}, $fn))[-1];
+		my $fn = ( split( qr{/},   $path ) )[-1];
+		my $ft = ( split( qr{[.]}, $fn ) )[-1];
 		my $ct = $type->type($ft);
 		$self->res->headers->content_disposition("inline; filename=${fn}");
 		$self->res->headers->content_type("$ct; name=${fn}");
