@@ -26,6 +26,11 @@ my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 
 my $type = Mojolicious::Types->new;
 
+my %restrictions = (
+	derf     => [ 'pics/comics', 'pics/lynx' ],
+	feuerrot => [ 'pics/comics', 'pics/lynx' ],
+);
+
 my @pgctl_devices = qw(
   fnordlicht lfan psu-12v psu-lastlight psu-saviour tbacklight tischlicht
 );
@@ -54,6 +59,45 @@ my $re_hwdb_item = qr{
 		$
 	)?
 }x;
+
+sub get_user {
+	my ($self) = @_;
+
+	my $authstr = $self->req->headers->authorization;
+	my ($user) = ( $authstr =~ m{ Digest \s username = " ([^"]+) " }x );
+
+	return $user // $authstr;
+}
+
+sub check_path_allowed {
+	my ( $user, $path ) = @_;
+
+	$path =~ s{ ^ [.] / }{}ox;
+
+	if ( $path =~ m{ / [.] [.] $ }ox ) {
+		return 1;
+	}
+
+	if ( not $user or not length($user) ) {
+		return 0;
+	}
+
+	if ( not exists $restrictions{$user} ) {
+		return 1;
+	}
+	if ( not $path or length($path) <= 1 ) {
+		return 1;
+	}
+	for my $prefix ( @{ $restrictions{$user} } ) {
+		if (   ( substr( $path, 0, length($prefix) ) eq $prefix )
+			or ( substr( $prefix, 0, length($path) ) eq $path ) )
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
 
 sub pgctl_get_status {
 	my ($device) = @_;
@@ -152,7 +196,14 @@ sub serve_efs {
 
 	my $param_s = $self->req->params->to_string;
 
+	my $user = get_user($self);
+
 	my ( $dir, $file ) = ( $path =~ m{ ^ (.+) / ([^/]+) \. html $ }ox );
+
+	if ( not check_path_allowed( $user, $path ) ) {
+		$self->redirect_to("${baseurl}/efs");
+		return;
+	}
 
 	if ( $path =~ m{ \. html $ }ox ) {
 
@@ -182,6 +233,8 @@ sub serve_efs {
 	elsif ( -d "${prefix}/${path}" ) {
 		$path =~ s{ / $ }{}ox;
 		my @all_files = read_dir( "${prefix}/${path}", keep_dot_dot => 1 );
+		@all_files
+		  = grep { check_path_allowed( $user, "${path}/$_" ) } @all_files;
 		@all_files = sort_filenames( $sort, "${prefix}/${path}", @all_files );
 		@all_files = map { efs_list_file( $path, $_, $param_s ) } @all_files;
 		$self->render( 'efs-list', files => \@all_files, );
@@ -242,7 +295,14 @@ sub serve_pgctl {
 		$devices{$device} = pgctl_get_status($device) ? 'on' : 'off';
 	}
 
-	$self->render( 'pgctl', devices => \%devices, );
+	my $user = get_user($self);
+
+	if ( $user ~~ [qw[derf feuerrot]] ) {
+		$self->render( 'pgctl', devices => \%devices, );
+	}
+	else {
+		$self->render( 'pgctl', devices => [] );
+	}
 
 	return;
 }
@@ -251,7 +311,11 @@ sub serve_pgctl_toggle {
 	my ($self) = @_;
 	my $device = $self->stash('device');
 
-	pgctl_set_status( $device, !pgctl_get_status($device) );
+	my $user = get_user($self);
+
+	if ( $user ~~ [qw[derf feuerrot]] ) {
+		pgctl_set_status( $device, !pgctl_get_status($device) );
+	}
 
 	$self->redirect_to("${baseurl}/pgctl");
 	return;
