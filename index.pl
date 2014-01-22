@@ -26,10 +26,7 @@ my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 
 my $type = Mojolicious::Types->new;
 
-my %restrictions = (
-	derf     => [ 'pics/comics', 'pics/lynx' ],
-	feuerrot => [ 'pics/comics', 'pics/lynx' ],
-);
+my %restrictions;
 
 my @pgctl_devices = qw(
   fnordlicht lfan psu-12v psu-lastlight psu-saviour tbacklight tischlicht
@@ -59,6 +56,19 @@ my $re_hwdb_item = qr{
 		$
 	)?
 }x;
+
+sub load_restrictions {
+	if ( -e 'efs_auth' ) {
+		open( my $fh, '<', 'efs_auth' ) or die("Can't open efs_auth: $!\n");
+		while ( my $line = <$fh> ) {
+			chomp $line;
+			my ( $user, $dirs ) = split( /\s*:\s*/, $line );
+			my @dirs = split( /\s+/, $dirs );
+			$restrictions{$user} = \@dirs;
+		}
+		close($fh) or warn("Can't close efs_auth: $!\n");
+	}
+}
 
 sub get_user {
 	my ($self) = @_;
@@ -320,6 +330,8 @@ sub serve_pgctl_toggle {
 	$self->redirect_to("${baseurl}/pgctl");
 	return;
 }
+
+load_restrictions();
 
 get '/efs/'                 => \&serve_efs;
 get '/efs/*path'            => \&serve_efs;
