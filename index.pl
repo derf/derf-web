@@ -29,7 +29,7 @@ my $type = Mojolicious::Types->new;
 my %restrictions;
 
 my @pgctl_devices = qw(
-  fnordlicht lfan psu-12v psu-lastlight psu-saviour tbacklight tischlicht
+  fnordlicht lfan psu-12v tbacklight tischlicht
 );
 
 my @hwdb_export = qw(
