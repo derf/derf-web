@@ -1,13 +1,26 @@
 <p>
-<table>
+<table class="hwdb">
 <tr>
-<th> Location </th><th> Amount </th><th> Description </th>
+<th> Location </th><th>&nbsp;</th><th>&nbsp;</th><th>&nbsp;</th><th> Description </th>
 </tr>
 % for my $item (@{ $db }) {
+% my $is_int = ($item->{amount} =~ m{^\s*\d+\s*$} ? 1 : 0);
 <tr>
-<td title="<%= $item->{locationv} %>"> <%= $item->{location} %> </td>
-<td> <%= $item->{amount} %> </td>
-<td> <%= $item->{description} %> </td>
+<td class="location" title="<%= $item->{locationv} %>"> <%= $item->{location} %> </td>
+<td class="amountminus">
+% if ($is_int and $item->{amount} > 0) {
+  <a class="sub1" href="?line=<%= $item->{line} %>&amp;amount=<%= $item->{amount} - 1 %>" >&ndash;</a>
+% }
+</td>
+<td class="amount">
+  <%= $item->{amount} %>
+</td>
+<td class="amountplus">
+% if ($is_int) {
+  <a class="add1" href="?line=<%= $item->{line} %>&amp;amount=<%= $item->{amount} + 1 %>" >+</a>
+% }
+</td>
+<td class="description"> <%= $item->{description} %> </td>
 </tr>
 % }
 </table>

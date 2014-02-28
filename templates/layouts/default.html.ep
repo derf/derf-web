@@ -103,6 +103,24 @@
 		color: white;
 	}
 
+	table.hwdb td.amount {
+		text-align: center;
+	}
+
+	table.hwdb td.amountminus a.sub1 {
+		margin-left: 0.4em;
+		font-weight: bold;
+		color: #660000;
+		text-decoration: none;
+	}
+
+	table.hwdb td.amountplus a.add1 {
+		margin-right: 0.4em;
+		font-weight: bold;
+		color: #006600;
+		text-decoration: none;
+	}
+
 	li {
 		margin-bottom: 0.2em;
 	}

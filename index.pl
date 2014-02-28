@@ -12,7 +12,7 @@ use Mojolicious::Lite;
 use Mojolicious::Static;
 use Mojolicious::Types;
 use File::Path qw(make_path);
-use File::Slurp qw(read_dir slurp);
+use File::Slurp qw(read_dir read_file write_file);
 use Image::Imlib2;
 
 no if $] >= 5.018, warnings => "experimental::smartmatch";
@@ -32,9 +32,9 @@ my @pgctl_devices = qw(
   fnordlicht lfan psu-12v tbacklight tischlicht
 );
 
-my @hwdb_export = qw(
-  RK SE SL SR S1 S5
-);
+#my @hwdb_export = qw(
+#  RK SE SL SR S1 S5
+#);
 
 my $re_hwdb_desc = qr{
 	^
@@ -173,18 +173,20 @@ sub load_hwdb {
 	my $db;
 	my %descs;
 
+	my $lineno = 0;
+
 	open( my $fh, '<', $hwdb );
 	while ( my $line = <$fh> ) {
 		chomp($line);
 
 		if ( $line =~ $re_hwdb_desc ) {
-			say "wat $+{location} := $+{description}";
 			$descs{ $+{location} } = $+{description};
 		}
 		elsif ( $line =~ $re_hwdb_item ) {
 			my $part = {
 				location    => $+{location},
 				locationv   => $descs{ $+{location} },
+				line        => $lineno,
 				amount      => $+{amount},
 				description => decode( 'utf-8', $+{description} ),
 			};
@@ -194,9 +196,25 @@ sub load_hwdb {
 			}
 			push( @{$db}, $part );
 		}
+		$lineno++;
 	}
 
 	return $db;
+}
+
+sub update_hwdb {
+	my %opt = @_;
+
+	my @lines = read_file($hwdb);
+
+	if ( defined $opt{amount} ) {
+		my $amount = sprintf( '%4d', $opt{amount} );
+		$lines[ $opt{line} ] =~ s/ ^ ( [^|]+ \s* \| ) \s* \d+ /${1}${amount}/x;
+	}
+
+	write_file( $hwdb, @lines );
+
+	return;
 }
 
 sub serve_efs {
@@ -290,6 +308,18 @@ sub serve_efs {
 
 sub serve_hwdb {
 	my ($self) = @_;
+	my $lineno = $self->param('line');
+	my $amount = $self->param('amount');
+
+	if ( $lineno and defined $amount ) {
+		update_hwdb(
+			line   => $lineno,
+			amount => $amount
+		);
+		$self->redirect_to("${baseurl}/hwdb");
+		return;
+	}
+
 	my $db = load_hwdb;
 
 	$self->render( 'hwdb-list', db => $db );
