@@ -27,10 +27,7 @@ my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 my $type = Mojolicious::Types->new;
 
 my %restrictions;
-
-my @pgctl_devices = qw(
-  fnordlicht lfan psu-12v tbacklight tischlicht
-);
+my ( @pgctl_ro, @pgctl_rw );
 
 #my @hwdb_export = qw(
 #  RK SE SL SR S1 S5
@@ -56,6 +53,15 @@ my $re_hwdb_item = qr{
 		$
 	)?
 }x;
+
+sub load_pgctl {
+	if ( -e 'pgctl_ro' ) {
+		@pgctl_ro = map { split } read_file('pgctl_ro');
+	}
+	if ( -e 'pgctl_rw' ) {
+		@pgctl_rw = map { split } read_file('pgctl_rw');
+	}
+}
 
 sub load_restrictions {
 	if ( -e 'efs_auth' ) {
@@ -112,7 +118,7 @@ sub check_path_allowed {
 sub pgctl_get_status {
 	my ($device) = @_;
 
-	if ( $device ~~ \@pgctl_devices ) {
+	if ( $device ~~ \@pgctl_ro or $device ~~ \@pgctl_rw ) {
 		my $status = qx{$device};
 		chomp $status;
 		return $status ? 1 : 0;
@@ -123,7 +129,7 @@ sub pgctl_get_status {
 sub pgctl_set_status {
 	my ( $device, $status ) = @_;
 
-	if ( $device ~~ \@pgctl_devices ) {
+	if ( $device ~~ \@pgctl_rw ) {
 		my $arg = $status ? 'on' : 'off';
 		system( $device, $arg );
 	}
@@ -331,7 +337,7 @@ sub serve_pgctl {
 
 	my %devices;
 
-	for my $device (@pgctl_devices) {
+	for my $device ( @pgctl_ro, @pgctl_rw ) {
 		$devices{$device} = pgctl_get_status($device) ? 'on' : 'off';
 	}
 
@@ -361,6 +367,7 @@ sub serve_pgctl_toggle {
 	return;
 }
 
+load_pgctl();
 load_restrictions();
 
 get '/efs/'                 => \&serve_efs;
