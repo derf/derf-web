@@ -1,7 +1,11 @@
 <div class="pgctl">
 <ul>
 % for my $device (sort keys %{$devices}) {
-<li><a class="<%= $devices->{$device} %>" href="/pgctl/toggle/<%= $device %>"><%= $device %></a></li>
+<li><a class="<%= $devices->{$device}->{status} %>"
+% if ($devices->{$device}->{access} eq 'rw') {
+href="/pgctl/toggle/<%= $device %>"
+% }
+><%= $device %></a></li>
 % }
 </ul>
 </div> <!-- pgctl -->

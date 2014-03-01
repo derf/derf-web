@@ -337,8 +337,17 @@ sub serve_pgctl {
 
 	my %devices;
 
-	for my $device ( @pgctl_ro, @pgctl_rw ) {
-		$devices{$device} = pgctl_get_status($device) ? 'on' : 'off';
+	for my $device (@pgctl_ro) {
+		$devices{$device} = {
+			status => pgctl_get_status($device) ? 'on' : 'off',
+			access => 'ro',
+		};
+	}
+	for my $device (@pgctl_rw) {
+		$devices{$device} = {
+			status => pgctl_get_status($device) ? 'on' : 'off',
+			access => 'rw',
+		};
 	}
 
 	my $user = get_user($self);
