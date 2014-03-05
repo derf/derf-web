@@ -27,7 +27,7 @@ my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
 my $type = Mojolicious::Types->new;
 
 my %restrictions;
-my ( @pgctl_ro, @pgctl_rw );
+my ( @pgctl_auth, @pgctl_ro, @pgctl_rw );
 
 #my @hwdb_export = qw(
 #  RK SE SL SR S1 S5
@@ -55,6 +55,9 @@ my $re_hwdb_item = qr{
 }x;
 
 sub load_pgctl {
+	if ( -e 'pgctl_auth' ) {
+		@pgctl_auth = map { split } read_file('pgctl_auth');
+	}
 	if ( -e 'pgctl_ro' ) {
 		@pgctl_ro = map { split } read_file('pgctl_ro');
 	}
@@ -352,7 +355,7 @@ sub serve_pgctl {
 
 	my $user = get_user($self);
 
-	if ( $user ~~ [qw[derf feuerrot]] ) {
+	if ( $user ~~ \@pgctl_auth ) {
 		$self->render( 'pgctl', devices => \%devices, );
 	}
 	else {
