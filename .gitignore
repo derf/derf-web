@@ -1,4 +1,5 @@
 /efs_auth
 /pgctl_auth
+/pgctl_env
 /pgctl_ro
 /pgctl_rw

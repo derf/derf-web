@@ -1,3 +1,10 @@
+<div class="envlist">
+% for my $item (@{$envlist}) {
+<span class="label"><%= $item->[0] %></span>
+<span class="value"><%= $item->[1] %></span><span class="unit"><%= $item->[2] %></span>
+<br/>
+% }
+</div> <!-- envlist -->
 <div class="pgctl">
 <ul>
 % for my $device (sort keys %{$devices}) {

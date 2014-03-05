@@ -66,6 +66,25 @@ sub load_pgctl {
 	}
 }
 
+sub get_pgctl_env {
+	my @pgctl_env;
+
+	if ( not -e 'pgctl_env' ) {
+		return;
+	}
+
+	for my $line ( read_file('pgctl_env', binmode => ':utf8') ) {
+		my ( $label, $file, $unit, $type ) = split( qr{ \s+ }ox, $line );
+
+		my $content = read_file($file);
+		chomp $content;
+
+		push( @pgctl_env, [ $label, $content, $unit, $type ] );
+	}
+
+	return @pgctl_env;
+}
+
 sub load_restrictions {
 	if ( -e 'efs_auth' ) {
 		open( my $fh, '<', 'efs_auth' ) or die("Can't open efs_auth: $!\n");
@@ -177,7 +196,7 @@ sub sort_filenames {
 	return @ret;
 }
 
-sub load_hwdb {
+sub get_hwdb {
 	my ($self) = @_;
 	my $db;
 	my %descs;
@@ -329,7 +348,7 @@ sub serve_hwdb {
 		return;
 	}
 
-	my $db = load_hwdb;
+	my $db = get_hwdb;
 
 	$self->render( 'hwdb-list', db => $db );
 
@@ -339,6 +358,7 @@ sub serve_pgctl {
 	my ($self) = @_;
 
 	my %devices;
+	my @envlist = get_pgctl_env();
 
 	for my $device (@pgctl_ro) {
 		$devices{$device} = {
@@ -356,10 +376,18 @@ sub serve_pgctl {
 	my $user = get_user($self);
 
 	if ( $user ~~ \@pgctl_auth ) {
-		$self->render( 'pgctl', devices => \%devices, );
+		$self->render(
+			'pgctl',
+			devices => \%devices,
+			envlist => \@envlist
+		);
 	}
 	else {
-		$self->render( 'pgctl', devices => [] );
+		$self->render(
+			'pgctl',
+			devices => [],
+			envlist => \@envlist
+		);
 	}
 
 	return;

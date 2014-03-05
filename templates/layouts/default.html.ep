@@ -84,6 +84,30 @@
 		margin-left: 2em;
 	}
 
+	div.envlist {
+		font-size: 200%;
+		position: absolute;
+		top: 1em;
+		right: 1em;
+		text-align: right;
+	}
+
+	div.envlist .label {
+		color: #6666;
+	}
+
+	div.envlist .label:after {
+		content: ": ";
+	}
+
+	div.envlist .value {
+		font-weight: bold;
+	}
+
+	div.envlist .unit {
+		color: #333333;
+	}
+
 	div.pgctl {
 		font-size: 300%;
 	}
