@@ -3,6 +3,7 @@
 <head>
 	<title>ithumb</title>
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style type="text/css">
 
 	body {
@@ -85,7 +86,7 @@
 	}
 
 	div.envlist {
-		font-size: 300%;
+		font-size: 200%;
 		top: 1em;
 		right: 1em;
 		text-align: left;
@@ -109,17 +110,17 @@
 	}
 
 	div.pgctl {
-		font-size: 300%;
+		font-size: 170%;
 	}
 
 	div.pgctl a {
 		display: block;
 		text-align: left;
 		float: left;
-		width: 260px;
-		height: 250px;
-		max-width: 250px;
-		max-height: 300px;
+		width: 130px;
+		height: 130px;
+		max-width: 130px;
+		max-height: 130px;
 		overflow: hidden;
 		padding: 0.2em;
 		margin: 0.2em;
@@ -131,7 +132,7 @@
 	}
 
 	div.pgctl a.off {
-		background-color: darkred;
+		background-color: #777777;
 		color: white;
 	}
 
