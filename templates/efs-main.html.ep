@@ -9,5 +9,6 @@
 <a class="next" href="<%= $nextlink %>" />
 <a class="parent" href="." />
 <a class="shuffle" href="<%= $randomlink %>" />
+<a class="rmlink" href="<%= $file %>&amp;delete=yes"> X </a>
 </div>
 </div>
