@@ -22,7 +22,7 @@ my $baseurl  = $ENV{BASEURL}      // 'https://fs.finalrewind.org';
 my $prefix   = $ENV{EFS_PREFIX}   // '/home/derf/lib';
 my $thumbdir = $ENV{EFS_THUMBDIR} // '/home/derf/var/local/efs-thumbs';
 my $hwdb     = $ENV{HWDB_PATH}    // '/home/derf/packages/hardware/var/db';
-my $listen   = $ENV{DWEB_LISTEN}  // 'http://127.0.0.1:8099';
+my $listen   = $ENV{DWEB_LISTEN}  // 'http://*:8099';
 
 my $type = Mojolicious::Types->new;
 

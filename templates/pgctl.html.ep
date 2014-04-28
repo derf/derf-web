@@ -4,12 +4,12 @@
 <span class="value"><%= $item->[1] %></span><span class="unit"><%= $item->[2] %></span>
 % }
 </div> <!-- envlist -->
-<div class="pgctl">
+<ul class="mlist pgctl">
 % for my $device (sort keys %{$devices}) {
-<a class="<%= $devices->{$device}->{status} %> <%= $devices->{$device}->{access} %>"
+<li><a class="<%= $devices->{$device}->{status} %> <%= $devices->{$device}->{access} %>"
 % if ($devices->{$device}->{access} eq 'rw') {
 href="/pgctl/toggle/<%= $device %>"
 % }
-><%= $device %></a>
+><span><%= $device %></span></a>
 % }
-</div> <!-- pgctl -->
+</ul> <!-- mlist -->

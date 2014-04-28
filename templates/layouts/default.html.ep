@@ -8,6 +8,7 @@
 
 	body {
 		font-family: Sans-Serif;
+		margin: 0;
 	}
 
 	img.picture {
@@ -85,6 +86,44 @@
 		margin-left: 2em;
 	}
 
+	ul.mlist {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+	}
+	ul.mlist li {
+		margin: 0;
+		color: #ffffff;
+		font-size: 14px;
+		background-color: #000000;
+		border-width: 1px 0;
+		border-color: #666666 #666666 #333333 #333333;
+		border-style: solid;
+	}
+	ul.mlist li a {
+		padding: 10px;
+		font-size: 16px;
+		color: #ffffff;
+		display: block;
+		height: 32px;
+		background-position:5px 10px;
+		background-repeat: no-repeat;
+	}
+	ul.mlist li a span {
+		margin-left: 40px;
+		display: inline-block;
+		vertical-align: middle;
+	}
+	ul.mlist li a img {
+		vertical-align: middle;
+	}
+	ul.mlist li.header {
+		padding: 15px 10px 10px;
+		font-size: 16px;
+		font-weight: bold;
+		font-size: 120%;
+	}
+
 	div.envlist {
 		font-size: 200%;
 		top: 1em;
@@ -126,17 +165,15 @@
 		margin: 0.2em;
 	}
 
-	div.pgctl a.on {
-		background-color: darkgreen;
-		color: white;
+	ul.pgctl a.on {
+		color: #bbffbb;
 	}
 
-	div.pgctl a.off {
-		background-color: #777777;
-		color: white;
+	ul.pgctl a.off {
+		color: #bbbbbb;
 	}
 
-	div.pgctl a.ro {
+	ul.pgctl a.ro {
 		font-style: italic;
 	}
 
