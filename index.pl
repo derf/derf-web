@@ -73,11 +73,11 @@ sub get_pgctl_env {
 		return;
 	}
 
-	for my $line ( read_file('pgctl_env', binmode => ':utf8') ) {
-		my ( $label, $file, $unit, $type ) = split( qr{ \s+ }ox, $line );
+	for my $line ( read_file( 'pgctl_env', binmode => ':utf8' ) ) {
+		my ( $label, $file, $format, $unit, $type )
+		  = split( qr{ \s+ }ox, $line );
 
-		my $content = read_file($file);
-		chomp $content;
+		my $content = sprintf( $format, read_file($file) );
 
 		push( @pgctl_env, [ $label, $content, $unit, $type ] );
 	}
@@ -293,7 +293,10 @@ sub serve_efs {
 		  = grep { check_path_allowed( $user, "${path}/$_" ) } @all_files;
 		@all_files = sort_filenames( $sort, "${prefix}/${path}", @all_files );
 		@all_files = map { efs_list_file( $path, $_, $param_s ) } @all_files;
-		$self->render( 'efs-list', files => \@all_files, );
+		$self->render(
+			'efs-list',
+			files => \@all_files,
+		);
 	}
 	else {
 		if ( $self->param('thumb') ) {
