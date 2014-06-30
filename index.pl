@@ -141,7 +141,7 @@ sub pgctl_get_status {
 	my ($device) = @_;
 
 	if ( $device ~~ \@pgctl_ro or $device ~~ \@pgctl_rw ) {
-		my $status = qx{$device};
+		my $status = qx{ssh flux $device};
 		chomp $status;
 		return $status ? 1 : 0;
 	}
@@ -153,7 +153,7 @@ sub pgctl_set_status {
 
 	if ( $device ~~ \@pgctl_rw ) {
 		my $arg = $status ? 'on' : 'off';
-		system( $device, $arg );
+		system( qw(ssh flux), $device, $arg );
 	}
 	return;
 }
