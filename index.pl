@@ -27,7 +27,7 @@ my $listen   = $ENV{DWEB_LISTEN}  // 'http://*:8099';
 my $type = Mojolicious::Types->new;
 
 my %restrictions;
-my ( @pgctl_auth, @pgctl_ro, @pgctl_rw );
+my ( @pgctl_auth, @pgctl_ro, @pgctl_rw, @webcam_auth );
 
 #my @hwdb_export = qw(
 #  RK SE SL SR S1 S5
@@ -54,7 +54,7 @@ my $re_hwdb_item = qr{
 	)?
 }x;
 
-sub load_pgctl {
+sub load_authfiles {
 	if ( -e 'pgctl_auth' ) {
 		@pgctl_auth = map { split } read_file('pgctl_auth');
 	}
@@ -63,6 +63,9 @@ sub load_pgctl {
 	}
 	if ( -e 'pgctl_rw' ) {
 		@pgctl_rw = map { split } read_file('pgctl_rw');
+	}
+	if ( -e 'webcam_auth' ) {
+		@webcam_auth = map { split } read_file('webcam_auth');
 	}
 }
 
@@ -410,7 +413,36 @@ sub serve_pgctl_toggle {
 	return;
 }
 
-load_pgctl();
+sub serve_webcam {
+	my ($self) = @_;
+	my $user = get_user($self);
+	if ( $user ~~ \@webcam_auth ) {
+		$self->render('webcam');
+	}
+	else {
+		$self->redirect_to($baseurl);
+	}
+	return;
+}
+
+sub serve_webcam_image {
+	my ($self) = @_;
+	my $user = get_user($self);
+	if ( $user ~~ \@webcam_auth ) {
+		my $path = 'cam.jpg';
+		my $fn   = ( split( qr{/}, $path ) )[-1];
+		my $ft   = ( split( qr{[.]}, $fn ) )[-1];
+		my $ct   = $type->type($ft);
+		$self->res->headers->content_disposition("inline; filename=${fn}");
+		$self->res->headers->content_type("$ct; name=${fn}");
+		$self->render_static($path);
+	}
+	else {
+		$self->redirect_to($baseurl);
+	}
+}
+
+load_authfiles();
 load_restrictions();
 
 get '/efs/'                 => \&serve_efs;
@@ -418,6 +450,8 @@ get '/efs/*path'            => \&serve_efs;
 get '/hwdb/'                => \&serve_hwdb;
 get '/pgctl'                => \&serve_pgctl;
 get '/pgctl/toggle/:device' => \&serve_pgctl_toggle;
+get '/webcam'               => \&serve_webcam;
+get '/webcam/webcam.jpg'    => \&serve_webcam_image;
 
 app->config(
 	hypnotoad => {
@@ -430,5 +464,6 @@ app->config(
 app->defaults( layout => 'default' );
 push( @{ app->static->paths }, $prefix );
 push( @{ app->static->paths }, $thumbdir );
+push( @{ app->static->paths }, '/tmp/webcam' );
 
 app->start;
