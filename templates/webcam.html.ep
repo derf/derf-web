@@ -1,3 +1,13 @@
 <div class="webcam">
-<img src="webcam.jpg" />
+<img src="webcam.jpg" id="webcam" />
 </div>
+
+%= javascript begin
+function reloadDisplay() {
+	d = new Date();
+	$("#webcam").attr("src", "webcam.jpg?r="+d.getTime())
+	setTimeout('reloadDisplay()', 60000);
+}
+
+setTimeout('reloadDisplay()', 60000);
+% end
