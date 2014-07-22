@@ -417,7 +417,7 @@ sub serve_webcam {
 	my ($self) = @_;
 	my $user = get_user($self);
 	if ( $user ~~ \@webcam_auth ) {
-		$self->render('webcam', refresh => 60);
+		$self->render('webcam', refresh => 11);
 	}
 	else {
 		$self->redirect_to($baseurl);
